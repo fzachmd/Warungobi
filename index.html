@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Warungobi</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f1f1f1;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 420px;
+        margin: auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-size: 14px;
+        margin-top: 10px;
+        display: block;
+    }
+
+    select, input, button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+
+    button {
+        margin-top: 15px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #005dc2;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>Pemesanan</h2>
+
+    <form id="orderForm">
+
+        <label>Jenis Layanan</label>
+        <select id="layanan" required>
+            <option value="">-- Pilih Layanan --</option>
+            <option value="Pulsa">Pulsa</option>
+            <option value="Dana">Dana</option>
+            <option value="Token Listrik">Token Listrik</option>
+            <option value="Bayar Listrik">Bayar Listrik</option>
+            <option value="Diamond ML">Diamond Mobile Legends</option>
+            <option value="Diamond FF">Diamond Free Fire</option>
+        </select>
+
+        <!-- Nomor HP -->
+        <div id="nohpBox" class="hidden">
+            <label>Nomor HP</label>
+            <input type="number" id="no_hp" placeholder="08xxxxxxxx">
+        </div>
+
+        <!-- ID PLN -->
+        <div id="plnBox" class="hidden">
+            <label>ID Pelanggan PLN</label>
+            <input type="number" id="id_pln" placeholder="Masukkan ID PLN">
+        </div>
+
+        <!-- ID Game -->
+        <div id="gameBox" class="hidden">
+            <label>User ID Game</label>
+            <input type="text" id="id_game" placeholder="Contoh: 12345678">
+        </div>
+
+        <label>Nominal / Jumlah</label>
+        <input type="text" id="jumlah" placeholder="Contoh: 10.000 / 50 Diamond" required>
+
+        <button type="submit">Kirim Pesanan</button>
+    </form>
+</div>
+
+<script>
+    const layanan = document.getElementById("layanan");
+    const nohpBox = document.getElementById("nohpBox");
+    const plnBox = document.getElementById("plnBox");
+    const gameBox = document.getElementById("gameBox");
+
+    layanan.addEventListener("change", function() {
+        nohpBox.classList.add("hidden");
+        plnBox.classList.add("hidden");
+        gameBox.classList.add("hidden");
+
+        if (this.value === "Pulsa" || this.value === "Dana") {
+            nohpBox.classList.remove("hidden");
+        }
+
+        if (this.value === "Token Listrik" || this.value === "Bayar Listrik") {
+            plnBox.classList.remove("hidden");
+        }
+
+        if (this.value === "Diamond ML" || this.value === "Diamond FF") {
+            gameBox.classList.remove("hidden");
+        }
+    });
+
+    // MENGIRIM KE WHATSAPP
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const adminWa = "082116673833"; // GANTI DENGAN NOMOR ANDA
+
+        const layananVal = document.getElementById("layanan").value;
+        const nohpVal = document.getElementById("no_hp").value || "-";
+        const plnVal = document.getElementById("id_pln").value || "-";
+        const gameVal = document.getElementById("id_game").value || "-";
+        const jumlahVal = document.getElementById("jumlah").value;
+
+        // Format pesan WhatsApp
+        const pesan = 082116673833
+`*PESANAN MASUK*
+-----------------------------
+Layanan  : ${layananVal}
+No HP    : ${nohpVal}
+ID PLN   : ${plnVal}
+ID Game  : ${gameVal}
+Jumlah   : ${jumlahVal}
+-----------------------------
+Tolong segera diproses.`;
+
+        const url = "https://wa.me/" + adminWa + "?text=" + encodeURIComponent(pesan);
+
+        window.open(url, "_blank");
+    });
+</script>
+
+</body>
+</html>
