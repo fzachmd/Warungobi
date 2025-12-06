@@ -2,203 +2,547 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Warungobi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WARUNGOBI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
 <style>
-    /* CSS LENGKAP */
+    /* VARIABLES */
+    :root {
+        --bg-body: #e0e5ec;
+        --bg-app: #ffffff;
+        --text-main: #111111;
+        --text-sub: #666666;
+        --border: #eeeeee;
+        --input-bg: #f7f9fc;
+        --primary: #000000;
+        --primary-text: #ffffff;
+        --danger: #d32f2f;
+        --success: #388e3c;
+        --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    /* DARK MODE AUTO */
+    body.dark {
+        --bg-body: #000000;
+        --bg-app: #121212;
+        --text-main: #ffffff;
+        --text-sub: #a0a0a0;
+        --border: #2a2a2a;
+        --input-bg: #1e1e1e;
+        --primary: #ffffff;
+        --primary-text: #000000;
+    }
+
+    /* RESET & LAYOUT */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+
     body {
-        font-family: Arial, sans-serif;
-        background: #f1f1f1;
-        margin: 0;
-        min-height: 100vh;      /* Agar tinggi full layar */
-        display: flex;          /* Mode Flexbox */
-        justify-content: center; /* Tengah Kiri-Kanan */
-        align-items: center;     /* Tengah Atas-Bawah */
+        background-color: var(--bg-body);
+        min-height: 100vh;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.3s;
+    }
+
+    .app-container {
+        width: 100%; max-width: 420px;
+        height: 90vh; max-height: 850px;
+        background: var(--bg-app);
+        border-radius: 24px;
+        overflow: hidden;
+        position: relative;
+        display: flex; flex-direction: column;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+
+    @media (max-width: 480px) {
+        .app-container { height: 100vh; max-height: none; border-radius: 0; border: none; }
+    }
+
+    /* HEADER */
+    .header {
+        padding: 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: center;
+        background: var(--bg-app); z-index: 10;
+    }
+    .header h1 { font-size: 18px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; text-transform: uppercase; }
+    .status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-day { background: #e0f2f1; color: #00695c; }
+    .status-night { background: #333; color: #ffd700; }
+
+    /* MENU GRID */
+    .menu-grid {
         padding: 20px;
-        box-sizing: border-box;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        overflow-y: auto;
     }
-
-    .container {
-        width: 100%;
-        max-width: 420px;
-        background: #fff;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-        text-align: center;
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: #333;
-    }
-
-    label {
-        font-size: 14px;
-        margin-top: 10px;
-        display: block;
-        font-weight: bold;
-        color: #555;
-    }
-
-    select, input, button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 6px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 15px;
-        box-sizing: border-box;
-    }
-
-    input:focus, select:focus {
-        border-color: #0088cc;
-        outline: none;
-    }
-
-    button {
-        margin-top: 25px;
-        background: #0088cc; /* Warna Biru Telegram */
-        color: white;
-        border: none;
+    .menu-item {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
         cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-        padding: 14px;
+        transition: transform 0.1s, background 0.2s;
     }
-
-    button:hover {
-        background: #00669c;
-        transform: translateY(-2px);
-    }
+    .menu-item:active { transform: scale(0.96); background: var(--border); }
     
-    button:disabled {
-        background: #cccccc;
-        cursor: not-allowed;
-        transform: none;
+    /* PROFESSIONAL ICONS (SVG) */
+    .icon-svg { width: 28px; height: 28px; margin-bottom: 12px; fill: var(--text-main); }
+    
+    .menu-item h3 { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .menu-item p { font-size: 11px; color: var(--text-sub); }
+
+    /* MODAL */
+    .modal-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--bg-app);
+        z-index: 50;
+        display: none; flex-direction: column;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-header { padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .modal-title { font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: 0.5px; }
+    .btn-close { 
+        width: 32px; height: 32px; border-radius: 50%; background: var(--input-bg); 
+        display: flex; align-items: center; justify-content: center; font-weight: bold; 
+        cursor: pointer; color: var(--text-main); font-size: 18px;
     }
 
-    .hidden {
+    .form-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+
+    /* INPUTS */
+    .input-box { margin-bottom: 18px; position: relative; }
+    .lbl { font-size: 10px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    input, select, textarea {
+        width: 100%; padding: 16px;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px; color: var(--text-main); font-weight: 600;
+        outline: none; -webkit-appearance: none;
+    }
+    textarea { resize: none; }
+    
+    input:focus, select:focus, textarea:focus { border-color: var(--text-main); background: var(--bg-app); }
+    input.invalid, textarea.invalid { border-color: var(--danger); background: rgba(211, 47, 47, 0.05); }
+    input.valid, textarea.valid { border-color: var(--success); background: rgba(56, 142, 60, 0.05); }
+    
+    .error-msg { color: var(--danger); font-size: 11px; margin-top: 5px; font-weight: 600; display: none; }
+    input.invalid + .error-msg, textarea.invalid + .error-msg { display: block; }
+
+    /* QRIS */
+    .qris-container {
+        padding: 24px; background: #fff; border-radius: 12px;
+        text-align: center; border: 1px dashed #bbb; margin-top: 10px;
         display: none;
     }
+    .qris-container canvas { width: 160px; height: 160px; }
+
+    /* BUTTON */
+    .btn-action {
+        width: 100%; padding: 18px;
+        background: var(--primary); color: var(--primary-text);
+        border: none; border-radius: 12px;
+        font-size: 14px; font-weight: 800; letter-spacing: 0.5px;
+        margin-top: 20px; cursor: pointer;
+        opacity: 0.4; pointer-events: none;
+        transition: opacity 0.2s;
+    }
+    .btn-action.enabled { opacity: 1; pointer-events: auto; }
+
+    /* WARNING TEXT */
+    .warning-text {
+        font-size: 11px; color: var(--text-sub); text-align: center;
+        margin-top: 15px; opacity: 0.8; font-weight: 500;
+    }
+
+    .hidden { display: none !important; }
 </style>
-
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<div class="container">
-    <h2>Tulis Pesanan Anda</h2>
+<div class="app-container">
+    <div class="header">
+        <h1>MELAYANI</h1></h1>
+        <div id="badge-time" class="status-badge status-day">ONLINE</div>
+    </div>
 
-    <form id="orderForm">
-        <label>Jenis Pesanan</label>
-        <select id="layanan" required>
-            <option value="">-- Pilih Pesanan --</option>
-            <option value="Pulsa">Pulsa</option>
-            <option value="Dana">Dana</option>
-            <option value="Token Listrik">Token Listrik</option>
-            <option value="Bayar Listrik">Bayar Listrik</option>
-            <option value="Diamond ML">Diamond Mobile Legends</option>
-            <option value="Diamond FF">Diamond Free Fire</option>
-        </select>
+    <div class="menu-grid">
+        <div class="menu-item" onclick="app.open('Pulsa')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17,1.01L7,1C5.9,1,5,1.9,5,3v18c0,1.1,0.9,2,2,2h10c1.1,0,2-0.9,2-2V3C19,1.9,18.1,1.01,17,1.01z M17,19H7V5h10V19z"/></svg>
+            <h3>PULSA / DATA</h3>
+            <p>All Operator</p>
+        </div>
+        <div class="menu-item" onclick="app.open('Dana')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21,18v1c0,1.1-0.9,2-2,2H5c-1.11,0-2-0.9-2-2V5c0-1.1,0.89-2,2-2h14c1.1,0,2,0.9,2,2v1h-9c-1.11,0-2,0.9-2,2v8 c0,1.1,0.89,2,2,2H21z M12,14h9v-4h-9V14z"/></svg>
+            <h3>E-WALLET</h3>
+            <p>Dana / Ovo</p>
+        </div>
+        <div class="menu-item" onclick="app.open('PLN')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+            <h3>TOKEN PLN</h3>
+            <p>Listrik</p>
+        </div>
+        <div class="menu-item" onclick="app.open('Game')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21,6H3C1.9,6,1,6.9,1,8v8c0,1.1,0.9,2,2,2h18c1.1,0,2-0.9,2-2V8C23,6.9,22.1,6,21,6z M6,15c-1.1,0-2-0.9-2-2s0.9-2,2-2 s2,0.9,2,2S7.1,15,6,15z"/></svg>
+            <h3>TOPUP GAME</h3>
+            <p>Game Online</p>
+        </div>
+        <div class="menu-item" onclick="app.open('Jajan')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M11,9H9V2H7v7H5V2H3v7c0,2.12,1.66,3.84,3.75,3.97V22h2.5v-9.03C11.34,12.84,13,11.12,13,9V2h-2V9z M16,6v16h2.5V6H21V2h-5 v4H16z"/></svg>
+            <h3>MAKANAN</h3>
+            <p>Pesan Antar</p>
+        </div>
+        <div class="menu-item" onclick="app.open('Tarik')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,13c-0.55,0-1-0.45-1-1V8h2v4 C13,12.55,12.55,13,12,13z"/></svg>
+            <h3>TARIK TUNAI</h3>
+            <p>Cairkan Saldo</p>
+        </div>
+    </div>
 
-        <div id="nohpBox" class="hidden">
-            <label>Nomor HP (Tujuan)</label>
-            <input type="number" id="no_hp" placeholder="08xxxxxxxx">
+    <div class="modal-overlay" id="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="lbl-title">ORDER</span>
+            <div class="btn-close" onclick="app.close()">&times;</div>
         </div>
 
-        <div id="plnBox" class="hidden">
-            <label>ID Pelanggan PLN</label>
-            <input type="number" id="id_pln" placeholder="Masukkan ID PLN">
+        <div class="form-scroll">
+            
+            <div class="input-box">
+                <label class="lbl">Nama Pengirim</label>
+                <input type="text" id="inp_nama" placeholder="Isi nama Anda..." autocomplete="off">
+            </div>
+
+            <div class="input-box hidden" id="wrap_menu">
+                <label class="lbl">Daftar Menu Pesanan</label>
+                <textarea id="inp_menu_text" rows="3" placeholder="Contoh: Nasi Goreng 2, Es Teh 1..."></textarea>
+                <div class="error-msg">Mohon isi menu pesanan</div>
+            </div>
+
+            <div class="input-box hidden" id="wrap_alamat">
+                <label class="lbl">Alamat Pengantaran</label>
+                <textarea id="inp_alamat" rows="2" placeholder="Nama Jalan, Patokan, Warna Rumah..."></textarea>
+                <div class="error-msg">Alamat wajib diisi</div>
+            </div>
+
+            <div class="input-box hidden" id="wrap_game">
+                <label class="lbl">Pilih Game</label>
+                <select id="inp_game">
+                    <option value="">-- Pilih --</option>
+                    <option value="Mobile Legends">Mobile Legends</option>
+                    <option value="Free Fire">Free Fire</option>
+                    <option value="PUBG Mobile">PUBG Mobile</option>
+                    <option value="Higgs Domino">Higgs Domino</option>
+                </select>
+            </div>
+
+            <div class="input-box" id="wrap_target">
+                <label class="lbl" id="lbl_target">Nomor Tujuan</label>
+                <input type="tel" id="inp_target" placeholder="08..." autocomplete="off">
+                <div class="error-msg">Nomor tidak valid (Min 10 digit)</div>
+            </div>
+
+            <div class="input-box hidden" id="wrap_note">
+                <label class="lbl">Catatan</label>
+                <input type="text" id="inp_note" placeholder="Keterangan tambahan...">
+            </div>
+
+            <div class="input-box" id="wrap_nominal">
+                <label class="lbl" id="lbl_nominal">Nominal (Rp)</label>
+                <input type="tel" id="inp_nominal" placeholder="0" autocomplete="off">
+                <div class="error-msg">Minimal Rp 1.000</div>
+            </div>
+
+            <div class="input-box" id="wrap_bayar">
+                <label class="lbl">Metode Bayar</label>
+                <select id="inp_bayar">
+                    <option value="">-- Pilih --</option>
+                    <option value="TUNAI">Tunai</option>
+                    <option value="QRIS">QRIS (Scan)</option>
+                    <option value="HUTANG" id="opt_hutang">Hutang</option>
+                </select>
+            </div>
+
+            <div class="qris-container" id="box_qris">
+                <canvas id="qr-code"></canvas>
+                <div style="font-size:11px; margin-top:10px; font-weight:700;">SCAN QRIS DI ATAS</div>
+            </div>
+
+            <button id="btn-kirim" class="btn-action">KIRIM SEKARANG</button>
+            <p class="warning-text">⚠️ Demi keamanan, batas order 1 pesanan per menit.</p>
+            <div style="height:50px"></div>
         </div>
-
-        <div id="gameBox" class="hidden">
-            <label>User ID Game</label>
-            <input type="text" id="id_game" placeholder="Contoh: 12345678 (1234)">
-        </div>
-
-        <label>Nominal / Jumlah</label>
-        <input type="text" id="jumlah" placeholder="Contoh: 10.000 / 50 Diamond" required>
-
-        <button type="submit" id="btnKirim">Kirim Pesanan</button>
-    </form>
+    </div>
 </div>
 
 <script>
-    const layanan = document.getElementById("layanan");
-    const nohpBox = document.getElementById("nohpBox");
-    const plnBox = document.getElementById("plnBox");
-    const gameBox = document.getElementById("gameBox");
-    const btnKirim = document.getElementById("btnKirim");
-
-    // 1. Tampilan Form (Show/Hide Input sesuai layanan)
-    layanan.addEventListener("change", function() {
-        nohpBox.classList.add("hidden");
-        plnBox.classList.add("hidden");
-        gameBox.classList.add("hidden");
-        const val = this.value;
-
-        if (val === "Pulsa" || val === "Dana") {
-            nohpBox.classList.remove("hidden");
-        } else if (val === "Token Listrik" || val === "Bayar Listrik") {
-            plnBox.classList.remove("hidden");
-        } else if (val === "Diamond ML" || val === "Diamond FF") {
-            gameBox.classList.remove("hidden");
+    /* =======================================
+       SECURITY & LOGIC
+       ======================================= */
+    
+    // 1. SECURITY: Block Shortcuts
+    document.addEventListener('keydown', e => {
+        if((e.ctrlKey && ['u','s','p','Shift'].includes(e.key)) || e.key === 'F12') {
+            e.preventDefault(); return false;
         }
     });
 
-    // 2. LOGIKA PENGIRIMAN KE TELEGRAM
-    document.getElementById("orderForm").addEventListener("submit", function(e) {
-        e.preventDefault();
+    // 2. CONFIG (Obfuscated)
+    const _0x1 = "8403114844";
+    const _0x2 = "AAGkjXGJ753fIZc2MNqT9LuVqk";
+    const _0x3 = "-C1E4IWBM";
+    const TOKEN = _0x1 + ":" + _0x2 + _0x3; 
+    const CHAT_ID = "6437261675";
+    const QR_DATA = "00020101021126620014ID.LINKAJA.WWW011893600915309787601002099787601000303UMI51440014ID.CO.QRIS.WWW0215ID10253997876010303UMI5204481453033605802ID5910Warung obi6008SUKABUMI61054313562070703A01630467AC";
 
-        // ==========================================
-        // WAJIB DIGANTI DENGAN DATA BOT ANDA
-        // ==========================================
-        const token = "8403114844:AAGkjXGJ753fIZc2MNqT9LuVqk-C1E4IWBM"; // Contoh: 7654321:AAFw...
-        const chatId = "6437261675";  // Contoh: 123456789
-        // ==========================================
+    // 3. APP CONTROLLER
+    const app = {
+        svc: '',
+        
+        init: () => {
+            app.themeCheck();
+            setInterval(app.themeCheck, 60000);
+            new QRious({ element: document.getElementById('qr-code'), value: QR_DATA, size: 180 });
+            
+            // Listeners
+            document.getElementById('inp_nama').addEventListener('input', app.validate);
+            document.getElementById('inp_target').addEventListener('input', (e) => { app.formatPhone(e.target); app.validate(); });
+            document.getElementById('inp_nominal').addEventListener('input', (e) => { app.formatRupiah(e.target); app.validate(); });
+            document.getElementById('inp_game').addEventListener('change', app.validate);
+            document.getElementById('inp_menu_text').addEventListener('input', app.validate);
+            document.getElementById('inp_alamat').addEventListener('input', app.validate);
+            document.getElementById('inp_bayar').addEventListener('change', (e) => { app.toggleQris(); app.validate(); });
+            document.getElementById('btn-kirim').addEventListener('click', app.send);
+        },
 
-        const layananVal = document.getElementById("layanan").value;
-        const nohpVal = document.getElementById("no_hp").value || "-";
-        const plnVal = document.getElementById("id_pln").value || "-";
-        const gameVal = document.getElementById("id_game").value || "-";
-        const jumlahVal = document.getElementById("jumlah").value;
-
-        // Ubah tombol loading
-        btnKirim.innerHTML = "Sedang Mengirim...";
-        btnKirim.disabled = true;
-
-        const pesan = `*PESANAN BARU MASUK*
------------------------------
-Layanan  : ${layananVal}
-No HP    : ${nohpVal}
-ID PLN   : ${plnVal}
-ID Game  : ${gameVal}
-Jumlah   : ${jumlahVal}
------------------------------
-Mohon segera diproses.`;
-
-        // Kirim Request ke API Telegram
-        fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(pesan)}&parse_mode=Markdown`)
-        .then(response => {
-            if (response.ok) {
-                alert("✅ Pesanan Berhasil Terkirim! Mohon tunggu konfirmasi.");
-                window.location.reload(); // Refresh halaman
+        themeCheck: () => {
+            const h = new Date().getHours();
+            const b = document.body;
+            const badge = document.getElementById('badge-time');
+            if(h >= 18 || h < 6) {
+                b.classList.add('dark');
+                badge.className = 'status-badge status-night';
+                badge.innerText = "MALAM";
             } else {
-                alert("❌ Gagal mengirim. Cek koneksi atau Token Bot.");
-                btnKirim.innerHTML = "Kirim Pesanan";
-                btnKirim.disabled = false;
+                b.classList.remove('dark');
+                badge.className = 'status-badge status-day';
+                badge.innerText = "SIANG";
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("❌ Terjadi kesalahan sistem.");
-            btnKirim.innerHTML = "Kirim Pesanan";
-            btnKirim.disabled = false;
-        });
-    });
-</script>
+        },
 
+        open: (type) => {
+            app.svc = type;
+            document.getElementById('lbl-title').innerText = type.toUpperCase();
+            app.resetForm();
+            const ui = app.getUI();
+            
+            // Logic UI based on Type
+            if(type === 'Game') {
+                ui.wrpGame.classList.remove('hidden');
+                ui.lblTarget.innerText = "ID Server";
+                ui.inpTarget.placeholder = "Contoh: 12345 (2022)";
+                ui.lblNominal.innerText = "Item / Diamond";
+                ui.inpNominal.placeholder = "86";
+            } 
+            else if (type === 'Jajan') {
+                ui.wrpMenu.classList.remove('hidden');
+                ui.wrpAlamat.classList.remove('hidden');
+                ui.lblTarget.innerText = "No. WhatsApp (Aktif)";
+                ui.lblNominal.innerText = "Total Harga Pesanan";
+            }
+            else if (type === 'Tarik') {
+                ui.lblTarget.innerText = "Nomor WhatsApp Anda";
+                ui.wrpBayar.classList.add('hidden'); 
+                document.getElementById('box_qris').style.display = 'block';
+            } 
+            else if (type === 'Hutang') {
+                ui.wrpNote.classList.remove('hidden');
+                ui.optHutang.classList.add('hidden');
+            }
+
+            if(type === 'PLN') ui.lblTarget.innerText = "ID Pelanggan / Meter";
+
+            document.getElementById('modal').classList.add('active');
+        },
+
+        close: () => { document.getElementById('modal').classList.remove('active'); },
+
+        resetForm: () => {
+            const ui = app.getUI();
+            document.querySelectorAll('input, select, textarea').forEach(el => { el.value = ''; el.classList.remove('invalid', 'valid'); });
+            
+            ui.wrpGame.classList.add('hidden');
+            ui.wrpMenu.classList.add('hidden');
+            ui.wrpAlamat.classList.add('hidden');
+            ui.wrpNote.classList.add('hidden');
+            ui.wrpTarget.classList.remove('hidden');
+            ui.wrpNominal.classList.remove('hidden');
+            ui.wrpBayar.classList.remove('hidden');
+            ui.optHutang.classList.remove('hidden');
+            
+            document.getElementById('box_qris').style.display = 'none';
+            document.getElementById('btn-kirim').classList.remove('enabled');
+            
+            ui.lblTarget.innerText = "Nomor Tujuan";
+            ui.lblNominal.innerText = "Nominal (Rp)";
+            ui.inpTarget.placeholder = "08xxxxxxxxxx";
+            ui.inpNominal.placeholder = "0";
+        },
+
+        formatPhone: (el) => {
+            if(app.svc === 'Game') return;
+            let val = el.value.replace(/[^0-9]/g, '');
+            if(val.startsWith('62')) val = '0' + val.slice(2);
+            el.value = val;
+        },
+
+        formatRupiah: (el) => {
+            if(app.svc === 'Game') return;
+            let val = el.value.replace(/[^0-9]/g, '');
+            el.value = val ? parseInt(val).toLocaleString('id-ID') : '';
+        },
+
+        toggleQris: () => {
+            const val = document.getElementById('inp_bayar').value;
+            const box = document.getElementById('box_qris');
+            box.style.display = (val === 'QRIS') ? 'block' : 'none';
+            if(val === 'QRIS') box.scrollIntoView();
+        },
+
+        validate: () => {
+            const ui = app.getUI();
+            let isValid = true;
+
+            if(ui.inpNama.value.length < 3) isValid = false;
+
+            if(app.svc === 'Game') {
+                if(!ui.inpGame.value || ui.inpTarget.value.length < 5 || !ui.inpNominal.value) isValid = false;
+            } 
+            else if (app.svc === 'Jajan') {
+                if(!ui.inpMenu.value.trim()) { ui.inpMenu.classList.add('invalid'); isValid = false; }
+                else ui.inpMenu.classList.remove('invalid');
+
+                if(!ui.inpAlamat.value.trim()) { ui.inpAlamat.classList.add('invalid'); isValid = false; }
+                else ui.inpAlamat.classList.remove('invalid');
+                
+                if(ui.inpTarget.value.length < 10) isValid = false;
+                if(!ui.inpNominal.value) isValid = false;
+            }
+            else {
+                const num = ui.inpTarget.value;
+                const nom = parseInt(ui.inpNominal.value.replace(/\./g,'') || 0);
+                const isRepeated = /^(\d)\1+$/.test(num.replace('08',''));
+                
+                if(num.length < 10 || !num.startsWith('08') || isRepeated) {
+                    if(num.length > 3) ui.inpTarget.classList.add('invalid');
+                    isValid = false;
+                } else {
+                    ui.inpTarget.classList.remove('invalid'); ui.inpTarget.classList.add('valid');
+                }
+
+                if(nom < 1000) {
+                    if(ui.inpNominal.value.length > 0) ui.inpNominal.classList.add('invalid');
+                    isValid = false;
+                } else {
+                    ui.inpNominal.classList.remove('invalid'); ui.inpNominal.classList.add('valid');
+                }
+            }
+
+            if(app.svc !== 'Tarik' && !ui.inpBayar.value) isValid = false;
+
+            const btn = document.getElementById('btn-kirim');
+            if(isValid) btn.classList.add('enabled'); else btn.classList.remove('enabled');
+        },
+
+        send: () => {
+            const btn = document.getElementById('btn-kirim');
+            if(!btn.classList.contains('enabled')) return;
+
+            // ANTI SPAM (1 MENIT / 60000ms)
+            const last = localStorage.getItem('last_tx');
+            if(last && (Date.now() - last < 60000)) { 
+                alert("⚠️ Harap tunggu 1 menit sebelum melakukan order lagi."); 
+                return; 
+            }
+
+            btn.innerText = "MENGIRIM...";
+            const ui = app.getUI();
+            
+            const data = {
+                nama: ui.inpNama.value,
+                target: ui.inpTarget.value,
+                nom: ui.inpNominal.value,
+                bayar: app.svc === 'Tarik' ? 'QRIS' : ui.inpBayar.value,
+                game: ui.inpGame.value,
+                menu: ui.inpMenu.value,
+                alamat: ui.inpAlamat.value,
+                note: document.getElementById('inp_note').value
+            };
+
+            let detail = "";
+            if(app.svc === 'Game') detail = `GAME: ${data.game}\nID: ${data.target}`;
+            else if(app.svc === 'Jajan') detail = `MENU: ${data.menu}\nALAMAT: ${data.alamat}\nKONTAK: ${data.target}`;
+            else detail = `TUJUAN: ${data.target}`;
+
+            if(data.note) detail += `\nCATATAN: ${data.note}`;
+
+            const msg = `
+<b>🔥 ORDER ${app.svc.toUpperCase()}</b>
+━━━━━━━━━━━━━━
+<b>Nama:</b> ${data.nama}
+
+${detail}
+
+<b>Nominal/Harga:</b> ${data.nom}
+<b>Bayar:</b> ${data.bayar}
+━━━━━━━━━━━━━━
+<i>${new Date().toLocaleTimeString()}</i>
+`;
+
+            fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`)
+            .then(r => r.json())
+            .then(d => {
+                if(d.ok) {
+                    alert("✅ Pesanan Terkirim!");
+                    localStorage.setItem('last_tx', Date.now());
+                    app.close();
+                } else { alert("❌ Gagal."); }
+                btn.innerText = "KIRIM SEKARANG";
+            })
+            .catch(() => { alert("❌ Koneksi Error."); btn.innerText = "KIRIM SEKARANG"; });
+        },
+
+        getUI: () => {
+            return {
+                inpNama: document.getElementById('inp_nama'),
+                inpTarget: document.getElementById('inp_target'),
+                inpNominal: document.getElementById('inp_nominal'),
+                inpBayar: document.getElementById('inp_bayar'),
+                inpGame: document.getElementById('inp_game'),
+                inpMenu: document.getElementById('inp_menu_text'),
+                inpAlamat: document.getElementById('inp_alamat'),
+                
+                wrpGame: document.getElementById('wrap_game'),
+                wrpTarget: document.getElementById('wrap_target'),
+                wrpNominal: document.getElementById('wrap_nominal'),
+                wrpBayar: document.getElementById('wrap_bayar'),
+                wrpNote: document.getElementById('wrap_note'),
+                wrpMenu: document.getElementById('wrap_menu'),
+                wrpAlamat: document.getElementById('wrap_alamat'),
+                
+                lblTarget: document.getElementById('lbl_target'),
+                lblNominal: document.getElementById('lbl_nominal'),
+                optHutang: document.getElementById('opt_hutang')
+            }
+        }
+    };
+
+    app.init();
+</script>
 </body>
 </html>
